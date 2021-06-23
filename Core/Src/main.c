@@ -23,15 +23,16 @@
 #include "dma.h"
 #include "hrtim.h"
 #include "hrtim.h"
-#include "iwdg.h"
 #include "tim.h"
 #include "usart.h"
-#include "wwdg.h"
 #include "gpio.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "Application_Conf.h"
+#include "DPC_Timeout.h"
+#include "ControlFunc.h"
+#include "PWM_Functions.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -51,6 +52,32 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+HAL_StatusTypeDef Init_Status;
+
+PID_Control_Struct PID_CONF_StartUp;
+
+PID_Control_Struct UDC_LIMIT_PID;
+PID_Control_Struct IDC_LIMIT_PID;
+
+static DMA_PWMDUTY_STRUCT DMA_HRTIM_SRC;
+static DMA_UART_STRUCT DMA_UART_SRC;
+
+extern RAW_ADC_Struct Raw_ADC;
+extern RAW_ADC_Struct Raw_DMA;
+
+ADC_Conf_TypeDef ADC_Conf;
+Cooked_ADC_Struct VDC_ADC_IN_PHY;
+
+uint16_t StartUp;
+float PID_Result;
+float PID_Result_V;
+float PID_Result_I;
+float PWM;
+uint32_t p_ADC1_Data[ADC1_CHs];
+uint32_t p_ADC2_Data[ADC2_CHs];
+
+volatile FlagStatus Calc_Start;
+FlagStatus DMA_FLAG;
 
 /* USER CODE END PV */
 
@@ -103,9 +130,29 @@ int main(void)
   MX_TIM4_Init();
   MX_TIM5_Init();
   MX_USART1_UART_Init();
-  MX_IWDG_Init();
-  MX_WWDG_Init();
   /* USER CODE BEGIN 2 */
+
+
+  HAL_TIM_Base_Start_IT(&htim1);
+  HAL_TIM_Base_Start_IT(&htim2);
+  HAL_TIM_Base_Start_IT(&htim3);
+  HAL_TIM_Base_Start_IT(&htim4);
+
+  DPC_TO_Init();
+
+
+  DPC_TO_Set(1,1000);
+
+  HRTIM_PWM_Init(&DMA_HRTIM_SRC);
+
+  //HAL_HRTIM_SimpleBaseStart(&hhrtim1, HRTIM_TIMERINDEX_TIMER_E);
+
+  //HAL_HRTIM_SimplePWMStart(&hhrtim1, HRTIM_TIMERINDEX_TIMER_E, HRTIM_OUTPUT_TE1);
+
+  HAL_HRTIM_WaveformCountStart_DMA(&hhrtim1, HRTIM_TIMERINDEX_TIMER_E);
+  //HAL_HRTIM_WaveformCountStart_IT(&hhrtim1, HRTIM_TIMERINDEX_TIMER_E);
+  HAL_HRTIM_WaveformOutputStart(&hhrtim1, HRTIM_OUTPUT_TE1);
+  //HAL_HRTIM_SimplePWMStart(&hhrtim1, HRTIM_TIMERINDEX_TIMER_E, HRTIM_OUTPUT_TE1);
 
   /* USER CODE END 2 */
 
@@ -116,6 +163,14 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  if (DPC_TO_Check(1)==TO_OUT_TOOK){
+		  PWM_DUTY_Processing (&DMA_HRTIM_SRC, HRTIM_TIMERID_TIMER_E , 25000);
+		  HAL_GPIO_TogglePin(GPIOC, LED_VD5_Pin);
+	  	  DPC_TO_Set(1,500);
+  	  }
+
+
+
   }
   /* USER CODE END 3 */
 }
@@ -136,9 +191,8 @@ void SystemClock_Config(void)
   /** Initializes the RCC Oscillators according to the specified parameters
   * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
-  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLM = RCC_PLLM_DIV2;
@@ -175,7 +229,49 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
+	if (huart->Instance == USART1 ){
 
+	}
+}
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+	if (htim->Instance == TIM1){
+		//20kHz
+		Calc_Start = SET;
+	}
+	else if (htim->Instance == TIM2){
+		//20kHz
+	}
+	if (htim->Instance == TIM3){
+		//1kHz
+		TimeoutMng();
+	}
+	else if (htim ->Instance == TIM4){
+		//1kHz
+
+	}
+}
+
+void HAL_HRTIM_Fault1Callback(HRTIM_HandleTypeDef *hhrtim){
+
+}
+void HAL_HRTIM_Fault3Callback(HRTIM_HandleTypeDef *hhrtim){
+
+}
+void HAL_HRTIM_Fault4Callback(HRTIM_HandleTypeDef *hhrtim){
+
+}
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
+	if (hadc->Instance == ADC1){
+		DATA_Acquisition_from_DMA(p_ADC1_Data,1);
+	}
+	else if (hadc->Instance == ADC2){
+		DATA_Acquisition_from_DMA(p_ADC2_Data,2);
+	}
+}
 /* USER CODE END 4 */
 
 /**

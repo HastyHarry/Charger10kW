@@ -37,7 +37,26 @@ extern "C" {
 
 /* Exported types ------------------------------------------------------------*/
 /* USER CODE BEGIN ET */
+typedef struct
+{
+	uint32_t chA1;
+	uint32_t chA2;
+	uint32_t chB1;
+	uint32_t chB2;
+	uint32_t chC1;
+	uint32_t chC2;
+	uint32_t chD1;
+	uint32_t chD2;
+	uint32_t chE1;
+	uint32_t chE2;
+} DMA_PWMDUTY_STRUCT;
 
+typedef struct
+{
+	uint8_t Received[30];
+	uint8_t Transmit[30];
+
+} DMA_UART_STRUCT;
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
