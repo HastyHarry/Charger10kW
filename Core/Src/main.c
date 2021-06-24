@@ -140,31 +140,27 @@ int main(void)
 
   DPC_TO_Init();
 
-
-
   DPC_TO_Set(1,1000);
 
-  HRTIM_PWM_Init(&DMA_HRTIM_SRC);
+  //HRTIM_PWM_Init(&DMA_HRTIM_SRC);
 
-  HAL_HRTIM_SimpleBaseStart(&hhrtim1, HRTIM_TIMERINDEX_TIMER_E);
+  HAL_HRTIM_SimpleBaseStart(&hhrtim1, HRTIM_TIMERINDEX_TIMER_A+HRTIM_TIMERINDEX_TIMER_B+HRTIM_TIMERINDEX_TIMER_C+
+		  HRTIM_TIMERINDEX_TIMER_D+HRTIM_TIMERINDEX_TIMER_E);
+
   HAL_HRTIM_SimpleBaseStart_DMA(&hhrtim1, HRTIM_TIMERINDEX_TIMER_E, (uint32_t) &DMA_HRTIM_SRC.chE1, (uint32_t) &(hhrtim1.Instance->sTimerxRegs[4].CMP1xR), 1);
-  HAL_HRTIM_WaveformCountStart_IT(&hhrtim1, HRTIM_TIMERINDEX_TIMER_E);  HAL_HRTIM_UpdateEnable(&hhrtim1,HRTIM_TIMERINDEX_TIMER_E);
-  HAL_HRTIM_WaveformOutputStart(&hhrtim1, HRTIM_OUTPUT_TE1);
-
-
-
-  //HAL_HRTIM_SimpleBaseStart_IT(&hhrtim1, HRTIM_TIMERINDEX_TIMER_E);
-    //HAL_HRTIM_SimplePWMStart(&hhrtim1, HRTIM_TIMERINDEX_TIMER_E, HRTIM_OUTPUT_TE1);
-  //HAL_HRTIM_WaveformCountStart(&hhrtim1, HRTIM_TIMERINDEX_TIMER_E);
-  //HAL_HRTIM_WaveformCountStart_DMA(&hhrtim1, HRTIM_TIMERINDEX_TIMER_E);
+  HAL_HRTIM_WaveformCountStart_IT(&hhrtim1, HRTIM_TIMERINDEX_TIMER_E);
   HAL_HRTIM_UpdateEnable(&hhrtim1,HRTIM_TIMERINDEX_TIMER_E);
   HAL_HRTIM_WaveformOutputStart(&hhrtim1, HRTIM_OUTPUT_TE1);
-  //HAL_HRTIM_WaveformCountStart(&hhrtim1, HRTIM_TIMERINDEX_TIMER_E);
 
-  //HAL_HRTIM_WaveformCountStart_IT(&hhrtim1, HRTIM_TIMERINDEX_TIMER_E);
-  //HAL_HRTIM_WaveformOutputStart(&hhrtim1, HRTIM_OUTPUT_TE1);
-  //HAL_HRTIM_WaveformSetOutputLevel(&hhrtim1,HRTIM_TIMERINDEX_TIMER_E,HRTIM_OUTPUT_TE1,HRTIM_OUTPUTLEVEL_ACTIVE);
-  //HAL_HRTIM_SimplePWMStart(&hhrtim1, HRTIM_TIMERINDEX_TIMER_E, HRTIM_OUTPUT_TE1);
+  HAL_HRTIM_WaveformCountStart_IT(&hhrtim1, HRTIM_TIMERINDEX_TIMER_A);
+  HAL_HRTIM_UpdateEnable(&hhrtim1,HRTIM_TIMERINDEX_TIMER_A);
+  HAL_HRTIM_WaveformOutputStart(&hhrtim1, HRTIM_OUTPUT_TA1);
+
+  //HAL_HRTIM_SimpleBaseStart(&hhrtim1, HRTIM_TIMERINDEX_TIMER_A);
+  //HAL_HRTIM_SimpleBaseStart_DMA(&hhrtim1, HRTIM_TIMERINDEX_TIMER_A, (uint32_t) &DMA_HRTIM_SRC.chA1, (uint32_t) &(hhrtim1.Instance->sTimerxRegs[0].CMP1xR), 1);
+//  HAL_HRTIM_WaveformCountStart_IT(&hhrtim1, HRTIM_TIMERINDEX_TIMER_A);
+//  HAL_HRTIM_UpdateEnable(&hhrtim1,HRTIM_TIMERINDEX_TIMER_A);
+//  HAL_HRTIM_WaveformOutputStart(&hhrtim1, HRTIM_OUTPUT_TA1+HRTIM_OUTPUT_TA2);
 
   /* USER CODE END 2 */
 
@@ -180,7 +176,8 @@ int main(void)
 	  HAL_ADC_Start_DMA(&hadc2, p_ADC2_Data, ADC2_MA_PERIOD_RAW*ADC2_CHs);
 
 	  if (DPC_TO_Check(1)==TO_OUT_TOOK){
-		  PWM_DUTY_Processing (&DMA_HRTIM_SRC, HRTIM_TIMERID_TIMER_E , 40000);
+		  PWM_DUTY_Processing (&DMA_HRTIM_SRC, HRTIM_TIMERID_TIMER_E , 4000);
+		  PWM_DUTY_Processing (&DMA_HRTIM_SRC, HRTIM_TIMERID_TIMER_A , 4000);
 		  HAL_GPIO_WritePin(RECT_SW_GPIO_Port, RECT_SW_Pin, GPIO_PIN_SET );
 		  //HAL_GPIO_TogglePin(GPIOC, LED_VD5_Pin);
 	  	  DPC_TO_Set(1,500);

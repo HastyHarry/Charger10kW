@@ -61,6 +61,10 @@ extern DMA_HandleTypeDef hdma_adc2;
 extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
 extern DMA_HandleTypeDef hdma_hrtim1_e;
+extern DMA_HandleTypeDef hdma_hrtim1_a;
+extern DMA_HandleTypeDef hdma_hrtim1_b;
+extern DMA_HandleTypeDef hdma_hrtim1_c;
+extern DMA_HandleTypeDef hdma_hrtim1_d;
 extern HRTIM_HandleTypeDef hhrtim1;
 extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim2;
@@ -255,6 +259,34 @@ void DMA1_Channel3_IRQHandler(void)
 }
 
 /**
+  * @brief This function handles DMA1 channel4 global interrupt.
+  */
+void DMA1_Channel4_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel4_IRQn 0 */
+
+  /* USER CODE END DMA1_Channel4_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_hrtim1_a);
+  /* USER CODE BEGIN DMA1_Channel4_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel4_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA1 channel5 global interrupt.
+  */
+void DMA1_Channel5_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel5_IRQn 0 */
+
+  /* USER CODE END DMA1_Channel5_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_hrtim1_b);
+  /* USER CODE BEGIN DMA1_Channel5_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel5_IRQn 1 */
+}
+
+/**
   * @brief This function handles DMA1 channel6 global interrupt.
   */
 void DMA1_Channel6_IRQHandler(void)
@@ -266,6 +298,20 @@ void DMA1_Channel6_IRQHandler(void)
   /* USER CODE BEGIN DMA1_Channel6_IRQn 1 */
 
   /* USER CODE END DMA1_Channel6_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA1 channel7 global interrupt.
+  */
+void DMA1_Channel7_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel7_IRQn 0 */
+
+  /* USER CODE END DMA1_Channel7_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_hrtim1_c);
+  /* USER CODE BEGIN DMA1_Channel7_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel7_IRQn 1 */
 }
 
 /**
@@ -476,6 +522,20 @@ void FPU_IRQHandler(void)
   /* USER CODE BEGIN FPU_IRQn 1 */
 
   /* USER CODE END FPU_IRQn 1 */
+}
+
+/**
+  * @brief This function handles DMA1 channel8 global interrupt.
+  */
+void DMA1_Channel8_IRQHandler(void)
+{
+  /* USER CODE BEGIN DMA1_Channel8_IRQn 0 */
+
+  /* USER CODE END DMA1_Channel8_IRQn 0 */
+  HAL_DMA_IRQHandler(&hdma_hrtim1_d);
+  /* USER CODE BEGIN DMA1_Channel8_IRQn 1 */
+
+  /* USER CODE END DMA1_Channel8_IRQn 1 */
 }
 
 /* USER CODE BEGIN 1 */
