@@ -68,7 +68,7 @@ void MX_HRTIM1_Init(void)
     Error_Handler();
   }
   pFaultCfg.Source = HRTIM_FAULTSOURCE_DIGITALINPUT;
-  pFaultCfg.Polarity = HRTIM_FAULTPOLARITY_HIGH;
+  pFaultCfg.Polarity = HRTIM_FAULTPOLARITY_LOW;
   pFaultCfg.Filter = HRTIM_FAULTFILTER_NONE;
   pFaultCfg.Lock = HRTIM_FAULTLOCK_READWRITE;
   if (HAL_HRTIM_FaultConfig(&hhrtim1, HRTIM_FAULT_1, &pFaultCfg) != HAL_OK)
@@ -140,7 +140,7 @@ void MX_HRTIM1_Init(void)
   {
     Error_Handler();
   }
-  pTimerCfg.InterruptRequests = HRTIM_MASTER_IT_NONE;
+  pTimerCfg.InterruptRequests = HRTIM_TIM_IT_CMP1||HRTIM_TIM_IT_CMP3;
   pTimerCfg.DMARequests = HRTIM_TIM_DMA_REP;
   pTimerCfg.DMASrcAddress = 0x0000;
   pTimerCfg.DMADstAddress = 0x0000;
@@ -184,7 +184,7 @@ void MX_HRTIM1_Init(void)
   {
     Error_Handler();
   }
-  pCompareCfg.CompareValue = 0xFFEF;
+  pCompareCfg.CompareValue = 0xFFDF;
 
   if (HAL_HRTIM_WaveformCompareConfig(&hhrtim1, HRTIM_TIMERINDEX_TIMER_E, HRTIM_COMPAREUNIT_4, &pCompareCfg) != HAL_OK)
   {
