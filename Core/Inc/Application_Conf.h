@@ -92,6 +92,12 @@
 #define G_IDC                           0.028                                          /*!< Gain terms of the DC current sensing */
 #define B_IDC                           0                                           /*!< Bias terms of the DC current sensing */
 
+#define G_VDCLINK                       1                                          /*!< Gain terms of the DC current sensing */
+#define B_VDCLINK                       1                                          /*!< Bias terms of the DC current sensing */
+#define G_IDCLINK                       1                                          /*!< Gain terms of the DC current sensing */
+#define B_IDCLINK                       1                                          /*!< Bias terms of the DC current sensing */
+#define G_VRECT                         1                                          /*!< Gain terms of the DC current sensing */
+#define B_VRECT                         1                                          /*!< Bias terms of the DC current sensing */
 
 //UART Settings
 #define UART_PACKAGE_SIZE				20

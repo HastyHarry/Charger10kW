@@ -133,7 +133,30 @@ void ADC_Gain_Init(ADC_Conf_TypeDef *BUCK_ADC_Conf,float G_Vac,float B_Vac,float
 	BUCK_ADC_Conf->G_Idc=G_Idc;
 	BUCK_ADC_Conf->invG_Idc=(float)(1.0/G_Idc);
 
-	BUCK_ADC_Conf->ADC_Conf_Complete=SET;
+	BUCK_ADC_Conf->ADC_Conf_Complete1=SET;
+}
+
+/**
+  * @brief  ADC_Gain_Init
+  * @param  ADC_Conf_TypeDef
+  * @retval None
+  */
+
+void ADC_Gain_Init_2(ADC_Conf_TypeDef *BUCK_ADC_Conf,float G_Vdclink,float B_Vdclink,float G_Idclink,float B_Idclink,float G_Vrect,float B_Vrect){
+
+	BUCK_ADC_Conf->B_Vdclink = B_Vdclink;
+	BUCK_ADC_Conf->G_Vdclink=G_Vdclink;
+	BUCK_ADC_Conf->invG_Vdclink=(float)(1.0/G_Vdclink);
+
+	BUCK_ADC_Conf->B_Idclink=B_Idclink;
+	BUCK_ADC_Conf->G_Idclink=G_Idclink;
+	BUCK_ADC_Conf->invG_Idclink=(float)(1.0/G_Idclink);
+
+	BUCK_ADC_Conf->B_Vrect=B_Vrect;
+	BUCK_ADC_Conf->G_Vrect=G_Vrect;
+	BUCK_ADC_Conf->invG_Vrect=(float)(1.0/G_Vrect);
+
+	BUCK_ADC_Conf->ADC_Conf_Complete2=SET;
 }
 
 /**
@@ -171,6 +194,23 @@ void ADC2Phy_IDC_ProcessData(ADC_Conf_TypeDef *ADC_Conf, RAW_ADC_Struct* p_Data_
 }
 
 /**
+  * @brief  ADC2Phy_VDC_ProcessData
+  * @param  ADC_Conf
+  * @param  p_Data_Sub
+  * @param  Cooked_Values
+  * @retval Cooked_Values
+  */
+void ADC2Phy_Vrect_ProcessData(ADC_Conf_TypeDef *ADC_Conf, RAW_ADC_Struct* p_Data_Sub, Cooked_ADC_Struct* Cooked_Values){
+
+	float B_Idc=ADC_Conf->B_Idc;
+	float G_Idc=ADC_Conf->G_Idc;
+	float invG_Idc=ADC_Conf->invG_Idc;
+
+	Cooked_Values->Idc = ((float)((int16_t)p_Data_Sub->Idc_MA-B_Idc)*(float)(G_Idc));
+
+}
+
+/**
   * @brief  Read_Volt_DC
   * @param  None
   * @retval Cooked_ADC_Struct
@@ -189,7 +229,6 @@ void DATA_Processing(){
 //	MA_Period=10;
 //
 	if (Raw_DMA.Ready1==SET){
-		Value2 = 0;
 		for (i=0;i<ADC1_MA_PERIOD_RAW;i++){
 			//Value1 = Value1 + p_ADC1_Data[i*ADC1_CHs];
 			Value2 = Value2 + Raw_DMA.Vdc[i];
@@ -209,6 +248,31 @@ void DATA_Processing(){
 		}
 
 		Raw_DMA.Ready1 = RESET;
+	}
+	else if (Raw_DMA.Ready2==SET){
+		for (i=0;i<ADC2_MA_PERIOD_RAW;i++){
+			Value1 = Value1 + Raw_DMA.Vrect[i];
+			Value2 = Value2 + Raw_DMA.Idclink[i];
+			Value3 = Value3 + Raw_DMA.Vdclink[i];
+		}
+
+		Raw_DMA.Vrect[Raw_ADC.Vrect_MA_Counter] = Value1/ADC2_MA_PERIOD_RAW;
+		Raw_ADC.Idclink[Raw_ADC.Idclink_MA_Counter] = Value2/ADC2_MA_PERIOD_RAW;
+		Raw_ADC.Vdclink[Raw_ADC.Vdclink_MA_Counter] = Value3/ADC2_MA_PERIOD_RAW;
+
+		Raw_ADC.Vrect_MA_Counter++;
+		if (Raw_ADC.Vrect_MA_Counter>=ADC2_MA_PERIOD_VDCRECT){
+			Raw_ADC.Vrect_MA_Counter=0;
+		}
+		Raw_ADC.Idclink_MA_Counter++;
+		if (Raw_ADC.Idclink_MA_Counter>=ADC2_MA_PERIOD_IDCLINK){
+			Raw_ADC.Idclink_MA_Counter=0;
+		}
+		Raw_ADC.Vdclink_MA_Counter++;
+		if (Raw_ADC.Vdclink_MA_Counter>=ADC2_MA_PERIOD_VDCLINK){
+			Raw_ADC.Vdclink_MA_Counter=0;
+		}
+		Raw_DMA.Ready2 = RESET;
 	}
 //	Raw_ADC.Vac[Raw_ADC.MA_Counter] = Value1/ADC1_MA_PERIOD_RAW;
 //	if (Raw_DMA.Ready==SET){

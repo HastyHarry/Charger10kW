@@ -48,6 +48,9 @@ typedef struct{
   uint32_t Vdclink[ADC2_MA_PERIOD_VDCLINK];
   uint32_t VDC_MA_Counter;
   uint32_t IDC_MA_Counter;
+  uint32_t Vrect_MA_Counter;
+  uint32_t Idclink_MA_Counter;
+  uint32_t Vdclink_MA_Counter;
   float Vdc_MA;
   float Vac_MA;
   float Idc_MA;
@@ -70,16 +73,33 @@ typedef struct {
 float G_Vac;
 float invG_Vac;
 float B_Vac;
+
 float G_Iac;
 float invG_Iac;
 float B_Iac;
+
 float G_Vdc;
 float invG_Vdc;
 float B_Vdc;
+
 float G_Idc;
 float invG_Idc;
 float B_Idc;
-FlagStatus ADC_Conf_Complete;
+
+float G_Vrect;
+float invG_Vrect;
+float B_Vrect;
+
+float G_Vdclink;
+float invG_Vdclink;
+float B_Vdclink;
+
+float G_Idclink;
+float invG_Idclink;
+float B_Idclink;
+
+FlagStatus ADC_Conf_Complete1;
+FlagStatus ADC_Conf_Complete2;
 }ADC_Conf_TypeDef;
 
 typedef struct{
@@ -93,6 +113,7 @@ typedef struct{
 
 
 void ADC_Gain_Init(ADC_Conf_TypeDef *BUCK_ADC_Conf,float G_Vac,float B_Vac,float G_Iac,float B_Iac,float G_Vdc,float B_Vdc,float G_Idc,float B_Idc);
+void ADC_Gain_Init_2(ADC_Conf_TypeDef *BUCK_ADC_Conf,float G_Vdclink,float B_Vdclink,float G_Idclink,float B_Idclink,float G_Vrect,float B_Vrect);
 void PID_Init(PID_Control_Struct* PID_CONFIG, float Kp, float Ki, float Kd, float Freq, float Omega, float Sat_Up, float Sat_Down,
 				float Hist, float Antiwindup, float Base_Value);
 float PID(float Ref, float Feed, PID_Control_Struct* Conf_struct);

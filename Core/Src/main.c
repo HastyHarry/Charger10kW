@@ -66,7 +66,7 @@ extern RAW_ADC_Struct Raw_ADC;
 extern RAW_ADC_Struct Raw_DMA;
 
 ADC_Conf_TypeDef ADC_Conf;
-Cooked_ADC_Struct VDC_ADC_IN_PHY;
+Cooked_ADC_Struct ADC_IN_PHY;
 
 uint16_t StartUp;
 float PID_Result;
@@ -140,6 +140,7 @@ int main(void)
 		  I_LIM_PID_SAT_DOWN, I_LIM_PID_HIST, I_LIM_PID_ANTIWINDUP, I_LIM_PID_BASE_VAL);
 
   ADC_Gain_Init(&ADC_Conf,G_VAC,B_VAC,G_IAC,B_IAC,G_VDC,B_VDC,G_IDC,B_IDC);
+  ADC_Gain_Init_2(&ADC_Conf,G_VDCLINK,B_VDCLINK,G_IDCLINK,B_IDCLINK,G_VRECT,B_VRECT);
 
   HAL_TIM_Base_Start_IT(&htim1);
   HAL_TIM_Base_Start_IT(&htim2);
@@ -188,13 +189,13 @@ int main(void)
 	if(Calc_Start==SET){
 		DATA_Processing();
 		ADC_MA_VAL_Collection();
-		ADC2Phy_VDC_ProcessData(&ADC_Conf,(RAW_ADC_Struct*)Read_Volt_DC(), &VDC_ADC_IN_PHY);
-		ADC2Phy_IDC_ProcessData(&ADC_Conf,(RAW_ADC_Struct*)Read_Volt_DC(), &VDC_ADC_IN_PHY);
+		ADC2Phy_VDC_ProcessData(&ADC_Conf,(RAW_ADC_Struct*)Read_Volt_DC(), &ADC_IN_PHY);
+		ADC2Phy_IDC_ProcessData(&ADC_Conf,(RAW_ADC_Struct*)Read_Volt_DC(), &ADC_IN_PHY);
 
-		if (((float)VDC_ADC_IN_PHY.Vdc) > BUCK_VDC_REF_LOW_REF){
+		if (((float)ADC_IN_PHY.Vdc) > BUCK_VDC_REF_LOW_REF){
 			StartUp=1;
 		}
-		else if (((float)VDC_ADC_IN_PHY.Vdc) < 20){
+		else if (((float)ADC_IN_PHY.Vdc) < 20){
 			StartUp=0;
 			PID_CONF_StartUp.resetPI=SET;
 		}
@@ -202,14 +203,14 @@ int main(void)
 		if (StartUp==0){
 			UDC_LIMIT_PID.resetPI = SET;
 			IDC_LIMIT_PID.resetPI = SET;
-			PID_Result_V = PID(BUCK_VDC_REF, VDC_ADC_IN_PHY.Vdc, &PID_CONF_StartUp);
+			PID_Result_V = PID(BUCK_VDC_REF, ADC_IN_PHY.Vdc, &PID_CONF_StartUp);
 			PWM = PID_Result_V/BUCK_VAC_REF;
 			IDC_LIMIT_PID.resetPI = SET;
 			UDC_LIMIT_PID.resetPI = SET;
 		}
 		else if (StartUp==1){
-			PID_Result_V = PID(BUCK_VDC_REF, VDC_ADC_IN_PHY.Vdc, &UDC_LIMIT_PID);
-			PID_Result_I = PID(BUCK_IDC_LIM, VDC_ADC_IN_PHY.Idc, &IDC_LIMIT_PID);
+			PID_Result_V = PID(BUCK_VDC_REF, ADC_IN_PHY.Vdc, &UDC_LIMIT_PID);
+			PID_Result_I = PID(BUCK_IDC_LIM, ADC_IN_PHY.Idc, &IDC_LIMIT_PID);
 
 			if (PID_Result_V<=PID_Result_I){
 				PWM = PID_Result_V/BUCK_VAC_REF;
@@ -219,13 +220,13 @@ int main(void)
 			}
 			PID_CONF_StartUp.resetPI = SET;
 		}
-		//PWM=0.5;
+
 		PWM_DUTY_Processing (&DMA_HRTIM_SRC, HRTIM_TIMERID_TIMER_E , 4000);
 
-		if (VDC_ADC_IN_PHY.Vdc>=BUCK_VDC_OV){
+		if (ADC_IN_PHY.Vdc>=BUCK_VDC_OV){
 			//HAL_TIMEx_PWMN_Stop_DMA(&BUCK_Tim1, BUCK_Tim1_PWM_CH);
 		}
-		else if (VDC_ADC_IN_PHY.Vdc <= BUCK_VDC_REF_LOW_REF){
+		else if (ADC_IN_PHY.Vdc <= BUCK_VDC_REF_LOW_REF){
 			//HAL_TIMEx_PWMN_Start_DMA(&BUCK_Tim1, BUCK_Tim1_PWM_CH, &BUCK_PWM_SRC.PWM_A, 1);
 		}
 
