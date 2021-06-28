@@ -260,13 +260,13 @@ void DATA_Acquisition_from_DMA(uint32_t* p_ADC_Data, uint32_t ADC_Type) {
 
 		Raw_DMA.Ready1 = SET;
 	case 2:
-			for (i=0;i<ADC2_MA_PERIOD_RAW;i++){
-				//Value1 = Value1 + p_ADC1_Data[i*ADC1_CHs];
-				Raw_DMA.Vdclink[i] = p_ADC_Data[i*ADC2_CHs];
-				Raw_DMA.Vrect[i] = p_ADC_Data[i*ADC2_CHs+1];
-				Raw_DMA.Idclink[i] = p_ADC_Data[i*ADC2_CHs+2];
-			}
-			Raw_DMA.Ready2 = SET;
+		for (i=0;i<ADC2_MA_PERIOD_RAW;i++){
+			//Value1 = Value1 + p_ADC1_Data[i*ADC1_CHs];
+			Raw_DMA.Vdclink[i] = p_ADC_Data[i*ADC2_CHs];
+			Raw_DMA.Vrect[i] = p_ADC_Data[i*ADC2_CHs+1];
+			Raw_DMA.Idclink[i] = p_ADC_Data[i*ADC2_CHs+2];
+		}
+		Raw_DMA.Ready2 = SET;
 	}
 
 }

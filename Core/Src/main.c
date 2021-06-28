@@ -132,6 +132,14 @@ int main(void)
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
+  PID_Init(&PID_CONF_StartUp, STUP_PID_K_P,STUP_PID_K_I,STUP_PID_K_D, BUCK_Math_Frequency, STUP_PID_W_F, STUP_PID_SAT_UP,
+		  STUP_PID_SAT_DOWN, STUP_PID_HIST, STUP_PID_ANTIWINDUP, STUP_PID_BASE_VAL);
+  PID_Init(&UDC_LIMIT_PID, V_LIM_PID_K_P,V_LIM_PID_K_I,V_LIM_PID_K_D, BUCK_Math_Frequency, V_LIM_PID_W_F, V_LIM_PID_SAT_UP,
+		  V_LIM_PID_SAT_DOWN, V_LIM_PID_HIST, V_LIM_PID_ANTIWINDUP, V_LIM_PID_BASE_VAL);
+  PID_Init(&IDC_LIMIT_PID, I_LIM_PID_K_P,I_LIM_PID_K_I,I_LIM_PID_K_D, BUCK_Math_Frequency, I_LIM_PID_W_F, I_LIM_PID_SAT_UP,
+		  I_LIM_PID_SAT_DOWN, I_LIM_PID_HIST, I_LIM_PID_ANTIWINDUP, I_LIM_PID_BASE_VAL);
+
+  ADC_Gain_Init(&ADC_Conf,G_VAC,B_VAC,G_IAC,B_IAC,G_VDC,B_VDC,G_IDC,B_IDC);
 
   HAL_TIM_Base_Start_IT(&htim1);
   HAL_TIM_Base_Start_IT(&htim2);
@@ -156,12 +164,6 @@ int main(void)
   HAL_HRTIM_UpdateEnable(&hhrtim1,HRTIM_TIMERINDEX_TIMER_A);
   HAL_HRTIM_WaveformOutputStart(&hhrtim1, HRTIM_OUTPUT_TA1);
 
-  //HAL_HRTIM_SimpleBaseStart(&hhrtim1, HRTIM_TIMERINDEX_TIMER_A);
-  //HAL_HRTIM_SimpleBaseStart_DMA(&hhrtim1, HRTIM_TIMERINDEX_TIMER_A, (uint32_t) &DMA_HRTIM_SRC.chA1, (uint32_t) &(hhrtim1.Instance->sTimerxRegs[0].CMP1xR), 1);
-//  HAL_HRTIM_WaveformCountStart_IT(&hhrtim1, HRTIM_TIMERINDEX_TIMER_A);
-//  HAL_HRTIM_UpdateEnable(&hhrtim1,HRTIM_TIMERINDEX_TIMER_A);
-//  HAL_HRTIM_WaveformOutputStart(&hhrtim1, HRTIM_OUTPUT_TA1+HRTIM_OUTPUT_TA2);
-
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -172,19 +174,63 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-	  HAL_ADC_Start_DMA(&hadc1, p_ADC1_Data, ADC1_MA_PERIOD_RAW*ADC1_CHs);
-	  HAL_ADC_Start_DMA(&hadc2, p_ADC2_Data, ADC2_MA_PERIOD_RAW*ADC2_CHs);
+	HAL_ADC_Start_DMA(&hadc1, p_ADC1_Data, ADC1_MA_PERIOD_RAW*ADC1_CHs);
+	HAL_ADC_Start_DMA(&hadc2, p_ADC2_Data, ADC2_MA_PERIOD_RAW*ADC2_CHs);
 
-	  if (DPC_TO_Check(1)==TO_OUT_TOOK){
-		  PWM_DUTY_Processing (&DMA_HRTIM_SRC, HRTIM_TIMERID_TIMER_E , 4000);
-		  PWM_DUTY_Processing (&DMA_HRTIM_SRC, HRTIM_TIMERID_TIMER_A , 4000);
-		  HAL_GPIO_WritePin(RECT_SW_GPIO_Port, RECT_SW_Pin, GPIO_PIN_SET );
-		  //HAL_GPIO_TogglePin(GPIOC, LED_VD5_Pin);
-	  	  DPC_TO_Set(1,500);
-  	  }
+	if (DPC_TO_Check(1)==TO_OUT_TOOK){
+		PWM_DUTY_Processing (&DMA_HRTIM_SRC, HRTIM_TIMERID_TIMER_E , 4000);
+		PWM_DUTY_Processing (&DMA_HRTIM_SRC, HRTIM_TIMERID_TIMER_A , 4000);
+		HAL_GPIO_WritePin(RECT_SW_GPIO_Port, RECT_SW_Pin, GPIO_PIN_SET );
+		//HAL_GPIO_TogglePin(GPIOC, LED_VD5_Pin);
+		DPC_TO_Set(1,500);
+	}
 
+	if(Calc_Start==SET){
+		DATA_Processing();
+		ADC_MA_VAL_Collection();
+		ADC2Phy_VDC_ProcessData(&ADC_Conf,(RAW_ADC_Struct*)Read_Volt_DC(), &VDC_ADC_IN_PHY);
+		ADC2Phy_IDC_ProcessData(&ADC_Conf,(RAW_ADC_Struct*)Read_Volt_DC(), &VDC_ADC_IN_PHY);
 
+		if (((float)VDC_ADC_IN_PHY.Vdc) > BUCK_VDC_REF_LOW_REF){
+			StartUp=1;
+		}
+		else if (((float)VDC_ADC_IN_PHY.Vdc) < 20){
+			StartUp=0;
+			PID_CONF_StartUp.resetPI=SET;
+		}
 
+		if (StartUp==0){
+			UDC_LIMIT_PID.resetPI = SET;
+			IDC_LIMIT_PID.resetPI = SET;
+			PID_Result_V = PID(BUCK_VDC_REF, VDC_ADC_IN_PHY.Vdc, &PID_CONF_StartUp);
+			PWM = PID_Result_V/BUCK_VAC_REF;
+			IDC_LIMIT_PID.resetPI = SET;
+			UDC_LIMIT_PID.resetPI = SET;
+		}
+		else if (StartUp==1){
+			PID_Result_V = PID(BUCK_VDC_REF, VDC_ADC_IN_PHY.Vdc, &UDC_LIMIT_PID);
+			PID_Result_I = PID(BUCK_IDC_LIM, VDC_ADC_IN_PHY.Idc, &IDC_LIMIT_PID);
+
+			if (PID_Result_V<=PID_Result_I){
+				PWM = PID_Result_V/BUCK_VAC_REF;
+			}
+			else if (PID_Result_V>PID_Result_I){
+				PWM = PID_Result_I/BUCK_VAC_REF;
+			}
+			PID_CONF_StartUp.resetPI = SET;
+		}
+		//PWM=0.5;
+		PWM_DUTY_Processing (&DMA_HRTIM_SRC, HRTIM_TIMERID_TIMER_E , 4000);
+
+		if (VDC_ADC_IN_PHY.Vdc>=BUCK_VDC_OV){
+			//HAL_TIMEx_PWMN_Stop_DMA(&BUCK_Tim1, BUCK_Tim1_PWM_CH);
+		}
+		else if (VDC_ADC_IN_PHY.Vdc <= BUCK_VDC_REF_LOW_REF){
+			//HAL_TIMEx_PWMN_Start_DMA(&BUCK_Tim1, BUCK_Tim1_PWM_CH, &BUCK_PWM_SRC.PWM_A, 1);
+		}
+
+		Calc_Start = RESET;
+	}
   }
   /* USER CODE END 3 */
 }
