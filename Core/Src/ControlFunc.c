@@ -177,7 +177,7 @@ void ADC2Phy_VDC_ProcessData(ADC_Conf_TypeDef *ADC_Conf, RAW_ADC_Struct* p_Data_
 }
 
 /**
-  * @brief  ADC2Phy_VDC_ProcessData
+  * @brief  ADC2Phy_IDC_ProcessData
   * @param  ADC_Conf
   * @param  p_Data_Sub
   * @param  Cooked_Values
@@ -194,7 +194,7 @@ void ADC2Phy_IDC_ProcessData(ADC_Conf_TypeDef *ADC_Conf, RAW_ADC_Struct* p_Data_
 }
 
 /**
-  * @brief  ADC2Phy_VDC_ProcessData
+  * @brief  ADC2Phy_Vrect_ProcessData
   * @param  ADC_Conf
   * @param  p_Data_Sub
   * @param  Cooked_Values
@@ -211,7 +211,24 @@ void ADC2Phy_Vrect_ProcessData(ADC_Conf_TypeDef *ADC_Conf, RAW_ADC_Struct* p_Dat
 }
 
 /**
-  * @brief  ADC2Phy_VDC_ProcessData
+  * @brief  ADC2Phy_Vdclink_ProcessData
+  * @param  ADC_Conf
+  * @param  p_Data_Sub
+  * @param  Cooked_Values
+  * @retval Cooked_Values
+  */
+void ADC2Phy_Vdclink_ProcessData(ADC_Conf_TypeDef *ADC_Conf, RAW_ADC_Struct* p_Data_Sub, Cooked_ADC_Struct* Cooked_Values){
+
+	float B_Idc=ADC_Conf->B_Vdclink;
+	float G_Idc=ADC_Conf->G_Vdclink;
+	float invG_Idc=ADC_Conf->invG_Vdclink;
+
+	Cooked_Values->Vdclink = ((float)((int16_t)p_Data_Sub->Idc_MA-B_Idc)*(float)(G_Idc));
+
+}
+
+/**
+  * @brief  ADC2Phy_Idclink_ProcessData
   * @param  ADC_Conf
   * @param  p_Data_Sub
   * @param  Cooked_Values

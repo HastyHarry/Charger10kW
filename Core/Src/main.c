@@ -153,17 +153,19 @@ int main(void)
 
   //HRTIM_PWM_Init(&DMA_HRTIM_SRC);
 
-  HAL_HRTIM_SimpleBaseStart(&hhrtim1, HRTIM_TIMERINDEX_TIMER_A+HRTIM_TIMERINDEX_TIMER_B+HRTIM_TIMERINDEX_TIMER_C+
-		  HRTIM_TIMERINDEX_TIMER_D+HRTIM_TIMERINDEX_TIMER_E);
+  HAL_HRTIM_SimpleBaseStart(&hhrtim1, HRTIM_TIMERINDEX_TIMER_A);
+  //HAL_HRTIM_SimpleBaseStart_DMA(&hhrtim1, HRTIM_TIMERINDEX_TIMER_A, (uint32_t) &DMA_HRTIM_SRC.chA1, (uint32_t) &(hhrtim1.Instance->sTimerxRegs[0].CMP1xR), 1);
+  HAL_HRTIM_WaveformCountStart_IT(&hhrtim1, HRTIM_TIMERINDEX_TIMER_A);
+  HAL_HRTIM_UpdateEnable(&hhrtim1,HRTIM_TIMERINDEX_TIMER_A);
+  HAL_HRTIM_WaveformOutputStart(&hhrtim1, HRTIM_OUTPUT_TA1|HRTIM_OUTPUT_TA2);
 
+  HRTIM_PWM_Init(&DMA_HRTIM_SRC);
   HAL_HRTIM_SimpleBaseStart_DMA(&hhrtim1, HRTIM_TIMERINDEX_TIMER_E, (uint32_t) &DMA_HRTIM_SRC.chE1, (uint32_t) &(hhrtim1.Instance->sTimerxRegs[4].CMP1xR), 1);
   HAL_HRTIM_WaveformCountStart_IT(&hhrtim1, HRTIM_TIMERINDEX_TIMER_E);
   HAL_HRTIM_UpdateEnable(&hhrtim1,HRTIM_TIMERINDEX_TIMER_E);
   HAL_HRTIM_WaveformOutputStart(&hhrtim1, HRTIM_OUTPUT_TE1);
 
-  HAL_HRTIM_WaveformCountStart_IT(&hhrtim1, HRTIM_TIMERINDEX_TIMER_A);
-  HAL_HRTIM_UpdateEnable(&hhrtim1,HRTIM_TIMERINDEX_TIMER_A);
-  HAL_HRTIM_WaveformOutputStart(&hhrtim1, HRTIM_OUTPUT_TA1);
+
 
   /* USER CODE END 2 */
 
@@ -175,14 +177,14 @@ int main(void)
 
     /* USER CODE BEGIN 3 */
 
-	HAL_ADC_Start_DMA(&hadc1, p_ADC1_Data, ADC1_MA_PERIOD_RAW*ADC1_CHs);
+	//HAL_ADC_Start_DMA(&hadc1, p_ADC1_Data, ADC1_MA_PERIOD_RAW*ADC1_CHs);
 	HAL_ADC_Start_DMA(&hadc2, p_ADC2_Data, ADC2_MA_PERIOD_RAW*ADC2_CHs);
 
 	if (DPC_TO_Check(1)==TO_OUT_TOOK){
-		PWM_DUTY_Processing (&DMA_HRTIM_SRC, HRTIM_TIMERID_TIMER_E , 4000);
-		PWM_DUTY_Processing (&DMA_HRTIM_SRC, HRTIM_TIMERID_TIMER_A , 4000);
-		HAL_GPIO_WritePin(RECT_SW_GPIO_Port, RECT_SW_Pin, GPIO_PIN_SET );
-		//HAL_GPIO_TogglePin(GPIOC, LED_VD5_Pin);
+		PWM_DUTY_Processing (&DMA_HRTIM_SRC, HRTIM_TIMERID_TIMER_E , 20000);
+		PWM_DUTY_Processing (&DMA_HRTIM_SRC, HRTIM_TIMERID_TIMER_A , 1000);
+		//HAL_GPIO_WritePin(RECT_SW_GPIO_Port, RECT_SW_Pin, GPIO_PIN_SET );
+		HAL_GPIO_TogglePin(LED_VD4_GPIO_Port, LED_VD4_Pin);
 		DPC_TO_Set(1,500);
 	}
 
@@ -321,7 +323,7 @@ void HAL_HRTIM_Fault1Callback(HRTIM_HandleTypeDef *hhrtim){
 	HAL_HRTIM_WaveformOutputStop(&hhrtim1, HRTIM_OUTPUT_TE1);
 }
 void HAL_HRTIM_Fault3Callback(HRTIM_HandleTypeDef *hhrtim){
-	HAL_GPIO_WritePin(LED_VD4_GPIO_Port, LED_VD4_Pin, GPIO_PIN_SET );
+	HAL_GPIO_WritePin(LED_VD5_GPIO_Port, LED_VD5_Pin, GPIO_PIN_SET );
 	HAL_HRTIM_WaveformOutputStop(&hhrtim1, HRTIM_OUTPUT_TE1);
 }
 void HAL_HRTIM_Fault4Callback(HRTIM_HandleTypeDef *hhrtim){
@@ -332,13 +334,14 @@ void HAL_HRTIM_Fault4Callback(HRTIM_HandleTypeDef *hhrtim){
 void HAL_HRTIM_Compare1EventCallback(HRTIM_HandleTypeDef *hhrtim,
                                             uint32_t TimerIdx){
 	if (TimerIdx == HRTIM_TIMERINDEX_TIMER_E){
-		HAL_GPIO_WritePin(LED_VD4_GPIO_Port, LED_VD4_Pin, GPIO_PIN_SET );
+		//HAL_GPIO_WritePin(LED_VD4_GPIO_Port, LED_VD4_Pin, GPIO_PIN_SET );
 	}
 
 }
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 	if (hadc->Instance == ADC1){
+		HAL_GPIO_TogglePin(RECT_SW_GPIO_Port, RECT_SW_Pin);
 		DATA_Acquisition_from_DMA(p_ADC1_Data,1);
 	}
 	else if (hadc->Instance == ADC2){
