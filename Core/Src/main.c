@@ -191,6 +191,7 @@ int main(void)
 		ADC_MA_VAL_Collection();
 		ADC2Phy_VDC_ProcessData(&ADC_Conf,(RAW_ADC_Struct*)Read_Volt_DC(), &ADC_IN_PHY);
 		ADC2Phy_IDC_ProcessData(&ADC_Conf,(RAW_ADC_Struct*)Read_Volt_DC(), &ADC_IN_PHY);
+		ADC2Phy_Idclink_ProcessData(&ADC_Conf,(RAW_ADC_Struct*)Read_Volt_DC(), &ADC_IN_PHY);
 
 		if (((float)ADC_IN_PHY.Vdc) > BUCK_VDC_REF_LOW_REF){
 			StartUp=1;

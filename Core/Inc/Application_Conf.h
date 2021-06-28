@@ -85,12 +85,12 @@
 //ADC Settings
 #define G_VAC                           4.25//4.708                                     /*!< Gain terms of the AC voltage sensing */
 #define B_VAC                           1975                                            /*!< Bias terms of the AC voltage sensing */
-#define G_IAC                           10//42.67                                     /*!< Gain terms of the AC current sensing */
-#define B_IAC                           1290                                            /*!< Bias terms of the AC current sensing */
+#define G_IAC                           1//42.67                                     /*!< Gain terms of the AC current sensing */
+#define B_IAC                           1                                            /*!< Bias terms of the AC current sensing */
 #define G_VDC                           0.16//200v devider - .058                      /*!< Gain terms of the DC voltage sensing */
 #define B_VDC                           0                                               /*!< Bias terms of the DC voltage sensing */
-#define G_IDC                           0.028                                          /*!< Gain terms of the DC current sensing */
-#define B_IDC                           0                                           /*!< Bias terms of the DC current sensing */
+#define G_IDC                           1                                          /*!< Gain terms of the DC current sensing */
+#define B_IDC                           1                                           /*!< Bias terms of the DC current sensing */
 
 #define G_VDCLINK                       1                                          /*!< Gain terms of the DC current sensing */
 #define B_VDCLINK                       1                                          /*!< Bias terms of the DC current sensing */

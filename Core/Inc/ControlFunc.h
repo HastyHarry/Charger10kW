@@ -54,6 +54,9 @@ typedef struct{
   float Vdc_MA;
   float Vac_MA;
   float Idc_MA;
+  float Vrect_MA;
+  float Vdclink_MA;
+  float Idclink_MA;
   float Vdc_MA_prev;
   float Vac_MA_prev;
   float Idc_MA_prev;
@@ -67,6 +70,9 @@ typedef struct{
   float Vdc;
   float Vac;
   float Idc;
+  float Vrect;
+  float Vdclink;
+  float Idclink;
 }Cooked_ADC_Struct;
 
 typedef struct {
@@ -119,6 +125,8 @@ void PID_Init(PID_Control_Struct* PID_CONFIG, float Kp, float Ki, float Kd, floa
 float PID(float Ref, float Feed, PID_Control_Struct* Conf_struct);
 void ADC2Phy_VDC_ProcessData(ADC_Conf_TypeDef *ADC_Conf, RAW_ADC_Struct* p_Data_Sub, Cooked_ADC_Struct* Cooked_Values);
 void ADC2Phy_IDC_ProcessData(ADC_Conf_TypeDef *ADC_Conf, RAW_ADC_Struct* p_Data_Sub, Cooked_ADC_Struct* Cooked_Values);
+void ADC2Phy_Vrect_ProcessData(ADC_Conf_TypeDef *ADC_Conf, RAW_ADC_Struct* p_Data_Sub, Cooked_ADC_Struct* Cooked_Values);
+void ADC2Phy_Idclink_ProcessData(ADC_Conf_TypeDef *ADC_Conf, RAW_ADC_Struct* p_Data_Sub, Cooked_ADC_Struct* Cooked_Values);
 RAW_ADC_Struct* Read_Volt_DC(void);
 void DATA_Processing();
 void ADC_MA_VAL_Collection();

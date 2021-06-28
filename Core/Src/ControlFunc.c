@@ -202,11 +202,28 @@ void ADC2Phy_IDC_ProcessData(ADC_Conf_TypeDef *ADC_Conf, RAW_ADC_Struct* p_Data_
   */
 void ADC2Phy_Vrect_ProcessData(ADC_Conf_TypeDef *ADC_Conf, RAW_ADC_Struct* p_Data_Sub, Cooked_ADC_Struct* Cooked_Values){
 
-	float B_Idc=ADC_Conf->B_Idc;
-	float G_Idc=ADC_Conf->G_Idc;
-	float invG_Idc=ADC_Conf->invG_Idc;
+	float B_Idc=ADC_Conf->B_Vrect;
+	float G_Idc=ADC_Conf->G_Vrect;
+	float invG_Idc=ADC_Conf->invG_Vrect;
 
-	Cooked_Values->Idc = ((float)((int16_t)p_Data_Sub->Idc_MA-B_Idc)*(float)(G_Idc));
+	Cooked_Values->Vrect = ((float)((int16_t)p_Data_Sub->Idc_MA-B_Idc)*(float)(G_Idc));
+
+}
+
+/**
+  * @brief  ADC2Phy_VDC_ProcessData
+  * @param  ADC_Conf
+  * @param  p_Data_Sub
+  * @param  Cooked_Values
+  * @retval Cooked_Values
+  */
+void ADC2Phy_Idclink_ProcessData(ADC_Conf_TypeDef *ADC_Conf, RAW_ADC_Struct* p_Data_Sub, Cooked_ADC_Struct* Cooked_Values){
+
+	float B_Idc=ADC_Conf->B_Idclink;
+	float G_Idc=ADC_Conf->G_Idclink;
+	float invG_Idc=ADC_Conf->invG_Idclink;
+
+	Cooked_Values->Idclink = ((float)((int16_t)p_Data_Sub->Idc_MA-B_Idc)*(float)(G_Idc));
 
 }
 
@@ -292,6 +309,8 @@ void ADC_MA_VAL_Collection(){
 	float Value1 =0;
 	float Value2 =0;
 	float Value3 =0;
+	float Value4 =0;
+	float Value5 =0;
 
 	for (i=0;i<ADC1_MA_PERIOD_VDC;i++){
 		//Value1 = Value1 + Raw_ADC.Vac[i];
@@ -302,12 +321,25 @@ void ADC_MA_VAL_Collection(){
 	for (i=0;i<ADC1_MA_PERIOD_IDC;i++){
 		//Value1 = Value1 + Raw_ADC.Vac[i];
 		//Value2 = Value2 + Raw_ADC.Vdc[i];
-		Value3 = Value3 + Raw_ADC.Idc[i];
+		Value1 = Value1 + Raw_ADC.Idc[i];
+	}
+
+	for (i=0;i<ADC2_MA_PERIOD_IDCLINK;i++){
+		Value3 = Value3 + Raw_ADC.Idclink[i];
+	}
+	for (i=0;i<ADC2_MA_PERIOD_VDCLINK;i++){
+		Value4 = Value4 + Raw_ADC.Vdclink[i];
+	}
+	for (i=0;i<ADC2_MA_PERIOD_VDCRECT;i++){
+		Value5 = Value5 + Raw_ADC.Vrect[i];
 	}
 
 	//Raw_ADC.Vac_MA = (float)(Value1/(float)(ADC1_MA_PERIOD));
 	Raw_ADC.Vdc_MA = (float)(Value2/(float)(ADC1_MA_PERIOD_VDC));
-	Raw_ADC.Idc_MA = (float)(Value3/(float)(ADC1_MA_PERIOD_IDC));
+	Raw_ADC.Idc_MA = (float)(Value1/(float)(ADC1_MA_PERIOD_IDC));
+	Raw_ADC.Idclink_MA = (float)(Value3/(float)(ADC2_MA_PERIOD_IDCLINK));
+	Raw_ADC.Vdclink_MA = (float)(Value4/(float)(ADC2_MA_PERIOD_VDCLINK));
+	Raw_ADC.Vrect_MA = (float)(Value5/(float)(ADC2_MA_PERIOD_VDCRECT));
 }
 
 void DATA_Acquisition_from_DMA(uint32_t* p_ADC_Data, uint32_t ADC_Type) {
@@ -318,8 +350,8 @@ void DATA_Acquisition_from_DMA(uint32_t* p_ADC_Data, uint32_t ADC_Type) {
 	case 1:
 		for (i=0;i<ADC1_MA_PERIOD_RAW;i++){
 			//Value1 = Value1 + p_ADC1_Data[i*ADC1_CHs];
-			Raw_DMA.Vdc[i] = p_ADC_Data[i*ADC1_CHs];
-			Raw_DMA.Idc[i] = p_ADC_Data[i*ADC1_CHs+1];
+			Raw_DMA.Vdc[i] = p_ADC_Data[i*ADC1_CHs+1];
+			Raw_DMA.Idc[i] = p_ADC_Data[i*ADC1_CHs];
 		}
 
 		Raw_DMA.Ready1 = SET;
