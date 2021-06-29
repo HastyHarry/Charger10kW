@@ -19,6 +19,6 @@
 
   
 void HRTIM_PWM_Init(/*uint32_t  BURST_PWM_Freq_Desidered, uint32_t  PWM_Freq_Desidered,*/  DMA_PWMDUTY_STRUCT *DUTY_SRC);
-void PWM_DUTY_Processing (DMA_PWMDUTY_STRUCT *DUTY_SRC, uint32_t Timers, uint32_t Duty);
+void PWM_DUTY_Processing (DMA_PWMDUTY_STRUCT *DUTY_SRC, PWM_Timers TIM, float Duty);
 
 #endif  //TELEMETRY

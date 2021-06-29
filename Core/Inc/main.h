@@ -57,6 +57,16 @@ typedef struct
 	uint8_t Transmit[30];
 
 } DMA_UART_STRUCT;
+
+typedef enum{
+	TIMER_A,
+	TIMER_B,
+	TIMER_C,
+	TIMER_D,
+	TIMER_E
+} PWM_Timers;
+
+
 /* USER CODE END ET */
 
 /* Exported constants --------------------------------------------------------*/
