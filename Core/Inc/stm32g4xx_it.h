@@ -78,7 +78,6 @@ void HRTIM1_Master_IRQHandler(void);
 void HRTIM1_TIME_IRQHandler(void);
 void HRTIM1_FLT_IRQHandler(void);
 void FPU_IRQHandler(void);
-void DMAMUX_OVR_IRQHandler(void);
 void DMA1_Channel8_IRQHandler(void);
 /* USER CODE BEGIN EFP */
 

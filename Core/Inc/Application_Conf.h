@@ -100,6 +100,7 @@
 #define B_VRECT                         1                                          /*!< Bias terms of the DC current sensing */
 
 //UART Settings
-#define UART_PACKAGE_SIZE				20
+#define UART_PACKAGE_SIZE				27
+#define UART_DELAY						100
 
 #endif //__BUCK_APPLICATION_CONF_H

@@ -20,6 +20,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "adc.h"
+#include "crc.h"
 #include "dma.h"
 #include "hrtim.h"
 #include "hrtim.h"
@@ -33,6 +34,7 @@
 #include "DPC_Timeout.h"
 #include "ControlFunc.h"
 #include "PWM_Functions.h"
+#include "UART_Functions.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -42,6 +44,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
+
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -61,6 +64,7 @@ PID_Control_Struct IDC_LIMIT_PID;
 
 static DMA_PWMDUTY_STRUCT DMA_HRTIM_SRC;
 static DMA_UART_STRUCT DMA_UART_SRC;
+extern UART_Message_Struct UART_MSG;
 
 extern RAW_ADC_Struct Raw_ADC;
 extern RAW_ADC_Struct Raw_DMA;
@@ -132,6 +136,7 @@ int main(void)
   MX_TIM4_Init();
   MX_TIM5_Init();
   MX_USART1_UART_Init();
+  MX_CRC_Init();
   /* USER CODE BEGIN 2 */
 
   PID_Init(&PID_CONF_StartUp, STUP_PID_K_P,STUP_PID_K_I,STUP_PID_K_D, BUCK_Math_Frequency, STUP_PID_W_F, STUP_PID_SAT_UP,
@@ -152,7 +157,7 @@ int main(void)
   DPC_TO_Init();
 
   DPC_TO_Set(1,1000);
-
+  DPC_TO_Set(TO_UART,UART_DELAY);
   //HRTIM_PWM_Init(&DMA_HRTIM_SRC);
 
   HAL_HRTIM_SimpleBaseStart(&hhrtim1, HRTIM_TIMERINDEX_TIMER_A);
@@ -169,6 +174,10 @@ int main(void)
 
   HAL_ADC_Start_DMA(&hadc1, p_ADC1_Data, ADC1_MA_PERIOD_RAW*ADC1_CHs);
   HAL_ADC_Start_DMA(&hadc2, p_ADC2_Data, ADC2_MA_PERIOD_RAW*ADC2_CHs);
+
+  //HAL_UART_Transmit_DMA(&huart1, &DMA_UART_SRC.Transmit, UART_MSG.MsgLength);
+  HAL_UART_Receive_DMA(&huart1, &DMA_UART_SRC.Received[0], UART_PACKAGE_SIZE);
+
 
   /* USER CODE END 2 */
 
@@ -190,6 +199,12 @@ int main(void)
 		HAL_GPIO_WritePin(RECT_SW_GPIO_Port, RECT_SW_Pin, GPIO_PIN_SET );
 		HAL_GPIO_TogglePin(LED_VD4_GPIO_Port, LED_VD4_Pin);
 		DPC_TO_Set(1,500);
+	}
+
+	if (DPC_TO_Check(TO_UART)==TO_OUT_TOOK){
+
+		HAL_UART_Transmit_DMA(&huart1, &DMA_UART_SRC.Transmit[0], UART_PACKAGE_SIZE);
+		DPC_TO_Set(TO_UART,UART_DELAY);
 	}
 
 	if(Calc_Start==SET){
@@ -345,6 +360,9 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 		DATA_Acquisition_from_DMA(p_ADC2_Data,2);
 	}
 }
+
+
+
 /* USER CODE END 4 */
 
 /**

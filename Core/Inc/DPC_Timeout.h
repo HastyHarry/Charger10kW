@@ -56,9 +56,9 @@ typedef enum{
 
 #define TO_MAX_NUMBER      6
 
-#define TO_TELEM_1     0
-#define TO_TELEM_2     1
-#define TO_INDX1       2
+#define TO_LED    	   0
+#define TO_COM		   1
+#define TO_UART        2
 #define TO_INDX2       3
 #define TO_INDX3       4
 #define TO_INDX4       5
