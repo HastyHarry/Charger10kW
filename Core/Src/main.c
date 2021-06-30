@@ -163,9 +163,7 @@ int main(void)
 
   HRTIM_PWM_Init(&DMA_HRTIM_SRC);
   HAL_HRTIM_SimpleBaseStart_DMA(&hhrtim1, HRTIM_TIMERINDEX_TIMER_E, (uint32_t) &DMA_HRTIM_SRC.chE1, (uint32_t) &(hhrtim1.Instance->sTimerxRegs[4].CMP1xR), 1);
-  //HAL_HRTIM_WaveformCountStart_DMA(&hhrtim1, HRTIM_TIMERINDEX_TIMER_E);
   HAL_HRTIM_SimpleBaseStart_IT(&hhrtim1, HRTIM_TIMERINDEX_TIMER_E);
-  //HAL_HRTIM_WaveformCountStart_IT(&hhrtim1, HRTIM_TIMERINDEX_TIMER_E);
   HAL_HRTIM_UpdateEnable(&hhrtim1,HRTIM_TIMERINDEX_TIMER_E);
   HAL_HRTIM_WaveformOutputStart(&hhrtim1, HRTIM_OUTPUT_TE1);
 
@@ -200,6 +198,7 @@ int main(void)
 		ADC2Phy_VDC_ProcessData(&ADC_Conf,(RAW_ADC_Struct*)Read_Volt_DC(), &ADC_IN_PHY);
 		ADC2Phy_IDC_ProcessData(&ADC_Conf,(RAW_ADC_Struct*)Read_Volt_DC(), &ADC_IN_PHY);
 		ADC2Phy_Idclink_ProcessData(&ADC_Conf,(RAW_ADC_Struct*)Read_Volt_DC(), &ADC_IN_PHY);
+		ADC2Phy_Vdclink_ProcessData(&ADC_Conf,(RAW_ADC_Struct*)Read_Volt_DC(), &ADC_IN_PHY);
 
 		if (((float)ADC_IN_PHY.Vdc) > BUCK_VDC_REF_LOW_REF){
 			StartUp=1;
@@ -213,14 +212,14 @@ int main(void)
 		if (StartUp==0){
 			UDC_LIMIT_PID.resetPI = SET;
 			IDC_LIMIT_PID.resetPI = SET;
-			PID_Result_V = PID(BUCK_VDC_REF, ADC_IN_PHY.Vdc, &PID_CONF_StartUp);
+			PID_Result_V = PID(BUCK_VDC_REF, ADC_IN_PHY.Vdclink, &PID_CONF_StartUp);
 			PWM = PID_Result_V/BUCK_VAC_REF;
 			IDC_LIMIT_PID.resetPI = SET;
 			UDC_LIMIT_PID.resetPI = SET;
 		}
 		else if (StartUp==1){
-			PID_Result_V = PID(BUCK_VDC_REF, ADC_IN_PHY.Vdc, &UDC_LIMIT_PID);
-			PID_Result_I = PID(BUCK_IDC_LIM, ADC_IN_PHY.Idc, &IDC_LIMIT_PID);
+			PID_Result_V = PID(BUCK_VDC_REF, ADC_IN_PHY.Vdclink, &UDC_LIMIT_PID);
+			PID_Result_I = PID(BUCK_IDC_LIM, ADC_IN_PHY.Idclink, &IDC_LIMIT_PID);
 
 			if (PID_Result_V<=PID_Result_I){
 				PWM = PID_Result_V/BUCK_VAC_REF;
