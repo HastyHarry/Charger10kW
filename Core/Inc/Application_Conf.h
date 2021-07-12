@@ -102,5 +102,7 @@
 //UART Settings
 #define UART_PACKAGE_SIZE				27
 #define UART_DELAY						100
+#define UART_HEADER						0xd00d
+#define UART_SRC_ADDR					0xA2
 
 #endif //__BUCK_APPLICATION_CONF_H

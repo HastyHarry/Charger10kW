@@ -182,6 +182,7 @@ int main(void)
   UART_Start_Receive_IT(&huart1, &DMA_UART_SRC.Received[0], UART_PACKAGE_SIZE);
   HAL_UART_Receive_DMA(&huart1, &DMA_UART_SRC.Received[0], UART_PACKAGE_SIZE);
 
+  UART_Message_Init(&UART_MSG,UART_HEADER,UART_SRC_ADDR);
 
   /* USER CODE END 2 */
 
@@ -209,13 +210,10 @@ int main(void)
 
 		ADDr_to_send[0]=0x011d;
 
-		P_data[0]=0xff - 0x01;
-		P_data[2]=0xff - 0xAA;
-
 		UART_Message_Send(&UART_MSG, ADDr_to_send, DATA_to_send, UART_MSG_Types_READ , 1);
 		UART_Message_Send_Package_Processing(&UART_MSG, &DMA_UART_SRC);
 		//HAL_UART_Transmit_DMA(&huart2, &P_data[0] /*&DMA_UART_SRC.Transmit[0]*/, UART_PACKAGE_SIZE);
-		HAL_UART_Transmit_IT(&huart1, &P_data[0] /*&DMA_UART_SRC.Transmit[0]*/, UART_PACKAGE_SIZE);
+		HAL_UART_Transmit_IT(&huart1, &DMA_UART_SRC.Transmit[0], UART_PACKAGE_SIZE);
 		DPC_TO_Set(TO_UART,UART_DELAY);
 
 	}
