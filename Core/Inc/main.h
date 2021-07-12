@@ -95,6 +95,10 @@ void Error_Handler(void);
 #define LED_VD5_GPIO_Port GPIOC
 #define LED_VD4_Pin GPIO_PIN_12
 #define LED_VD4_GPIO_Port GPIOC
+#define LED_VD10_Pin GPIO_PIN_5
+#define LED_VD10_GPIO_Port GPIOB
+#define LED_VD11_Pin GPIO_PIN_6
+#define LED_VD11_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
 #define LoWord(param) ((unsigned *)&param)[0]

@@ -29,6 +29,8 @@ typedef struct{
 
 }UART_Message_Struct;
 
+UART_Message_Struct UART_MSG;
+
 typedef enum{
 	UART_MSG_Types_READ = 01,
 	UART_MSG_Types_Write = 02,

@@ -65,6 +65,9 @@ PID_Control_Struct IDC_LIMIT_PID;
 static DMA_PWMDUTY_STRUCT DMA_HRTIM_SRC;
 static DMA_UART_STRUCT DMA_UART_SRC;
 extern UART_Message_Struct UART_MSG;
+uint16_t ADDr_to_send[5];
+uint16_t DATA_to_send[5];
+uint8_t P_data[30];
 
 extern RAW_ADC_Struct Raw_ADC;
 extern RAW_ADC_Struct Raw_DMA;
@@ -176,6 +179,7 @@ int main(void)
   HAL_ADC_Start_DMA(&hadc2, p_ADC2_Data, ADC2_MA_PERIOD_RAW*ADC2_CHs);
 
   //HAL_UART_Transmit_DMA(&huart1, &DMA_UART_SRC.Transmit, UART_MSG.MsgLength);
+  UART_Start_Receive_IT(&huart1, &DMA_UART_SRC.Received[0], UART_PACKAGE_SIZE);
   HAL_UART_Receive_DMA(&huart1, &DMA_UART_SRC.Received[0], UART_PACKAGE_SIZE);
 
 
@@ -203,8 +207,17 @@ int main(void)
 
 	if (DPC_TO_Check(TO_UART)==TO_OUT_TOOK){
 
-		HAL_UART_Transmit_DMA(&huart1, &DMA_UART_SRC.Transmit[0], UART_PACKAGE_SIZE);
+		ADDr_to_send[0]=0x011d;
+
+		P_data[0]=0xff - 0x01;
+		P_data[2]=0xff - 0xAA;
+
+		UART_Message_Send(&UART_MSG, ADDr_to_send, DATA_to_send, UART_MSG_Types_READ , 1);
+		UART_Message_Send_Package_Processing(&UART_MSG, &DMA_UART_SRC);
+		//HAL_UART_Transmit_DMA(&huart2, &P_data[0] /*&DMA_UART_SRC.Transmit[0]*/, UART_PACKAGE_SIZE);
+		HAL_UART_Transmit_IT(&huart1, &P_data[0] /*&DMA_UART_SRC.Transmit[0]*/, UART_PACKAGE_SIZE);
 		DPC_TO_Set(TO_UART,UART_DELAY);
+
 	}
 
 	if(Calc_Start==SET){
@@ -305,7 +318,7 @@ void SystemClock_Config(void)
   /** Initializes the peripherals clocks
   */
   PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_USART1|RCC_PERIPHCLK_ADC12;
-  PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_PCLK2;
+  PeriphClkInit.Usart1ClockSelection = RCC_USART1CLKSOURCE_SYSCLK;
   PeriphClkInit.Adc12ClockSelection = RCC_ADC12CLKSOURCE_SYSCLK;
   if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
   {
@@ -316,7 +329,13 @@ void SystemClock_Config(void)
 /* USER CODE BEGIN 4 */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart){
 	if (huart->Instance == USART1 ){
+		HAL_GPIO_TogglePin(LED_VD11_GPIO_Port, LED_VD11_Pin);
+	}
+}
 
+void HAL_UART_TxCpltCallback(UART_HandleTypeDef *huart){
+	if (huart->Instance == USART1 ){
+		HAL_GPIO_TogglePin(LED_VD10_GPIO_Port, LED_VD10_Pin);
 	}
 }
 
