@@ -66,6 +66,16 @@ typedef enum{
 	TIMER_E
 } PWM_Timers;
 
+typedef enum{
+	IDLE,
+	Waiting_For_AC,
+	Ready_to_Charge,
+	Charging,
+	Fault_OV_DClink,
+	Fault_I_DClink,
+	Fault_Res
+} System_state;
+
 
 /* USER CODE END ET */
 

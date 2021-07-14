@@ -38,9 +38,9 @@
 //Rectifier defaults
 #define BUCK_IDC_LIM					25
 #define BUCK_VAC_REF					400
-#define BUCK_VDC_REF					275
+#define BUCK_VDC_REF					100
 #define BUCK_VDC_OV						430
-#define BUCK_VDC_HIST					5												/*!< value in %*/
+#define BUCK_VDC_HIST					10												/*!< value in %*/
 #define BUCK_VDC_REF_LOW_REF			BUCK_VDC_REF-(BUCK_VDC_REF*BUCK_VDC_HIST/100)
 #define BUCK_VDC_REF_HIGH_REF			BUCK_VDC_REF+(BUCK_VDC_REF*BUCK_VDC_HIST/100)
 
@@ -50,7 +50,7 @@
 #define V_LIM_PID_K_D					0.5//0.5
 #define V_LIM_PID_W_F					2*PI*BUCK_Math_Frequency/10
 #define V_LIM_PID_SAT_UP_PERCENT		100												/*!Value in % of Duty*/
-#define V_LIM_PID_SAT_DOWN_PERCENT		-100											/*!Value in % of Duty*/
+#define V_LIM_PID_SAT_DOWN_PERCENT		0											/*!Value in % of Duty*/
 #define V_LIM_PID_SAT_UP				(V_LIM_PID_SAT_UP_PERCENT/100)*BUCK_VAC_REF
 #define V_LIM_PID_SAT_DOWN				(V_LIM_PID_SAT_DOWN_PERCENT/100)*BUCK_VAC_REF
 #define V_LIM_PID_HIST					0.0												/*!<Value in %>*/
@@ -61,7 +61,7 @@
 #define I_LIM_PID_K_I					0.5
 #define I_LIM_PID_K_D					0.0
 #define I_LIM_PID_W_F					2*PI*BUCK_Math_Frequency/10
-#define I_LIM_PID_SAT_UP_PERCENT		1												/*!Value in % of Duty*/
+#define I_LIM_PID_SAT_UP_PERCENT		0												/*!Value in % of Duty*/
 #define I_LIM_PID_SAT_DOWN_PERCENT		-100											/*!Value in % of Duty*/
 #define I_LIM_PID_SAT_UP				(I_LIM_PID_SAT_UP_PERCENT/100)*BUCK_VAC_REF
 #define I_LIM_PID_SAT_DOWN				(I_LIM_PID_SAT_DOWN_PERCENT/100)*BUCK_VAC_REF
@@ -92,10 +92,10 @@
 #define G_IDC                           1                                          /*!< Gain terms of the DC current sensing */
 #define B_IDC                           1                                           /*!< Bias terms of the DC current sensing */
 
-#define G_VDCLINK                       1                                          /*!< Gain terms of the DC current sensing */
-#define B_VDCLINK                       1                                          /*!< Bias terms of the DC current sensing */
-#define G_IDCLINK                       1                                          /*!< Gain terms of the DC current sensing */
-#define B_IDCLINK                       1                                          /*!< Bias terms of the DC current sensing */
+#define G_VDCLINK                       0.5                                          /*!< Gain terms of the DC current sensing */
+#define B_VDCLINK                       1900                                          /*!< Bias terms of the DC current sensing */
+#define G_IDCLINK                       0.007                                          /*!< Gain terms of the DC current sensing */
+#define B_IDCLINK                       490                                          /*!< Bias terms of the DC current sensing */
 #define G_VRECT                         1                                          /*!< Gain terms of the DC current sensing */
 #define B_VRECT                         1                                          /*!< Bias terms of the DC current sensing */
 
@@ -104,5 +104,7 @@
 #define UART_DELAY						100
 #define UART_HEADER						0xd00d
 #define UART_SRC_ADDR					0xA2
+
+#define CHARGE_DELAY					10000
 
 #endif //__BUCK_APPLICATION_CONF_H

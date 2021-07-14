@@ -56,12 +56,12 @@ typedef enum{
 
 #define TO_MAX_NUMBER      6
 
-#define TO_LED    	   0
-#define TO_COM		   1
-#define TO_UART        2
-#define TO_INDX2       3
-#define TO_INDX3       4
-#define TO_INDX4       5
+#define TO_LED    	             0
+#define TO_COM		   			 1
+#define TO_UART        			 2
+#define TO_CHARGING_RELAYS       3
+#define TO_INDX3       			 4
+#define TO_INDX4       			 5
 
 #define TEL_TIMEOUT_VAL     200
   

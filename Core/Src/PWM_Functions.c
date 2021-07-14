@@ -59,6 +59,8 @@ void PWM_DUTY_Processing (DMA_PWMDUTY_STRUCT *DUTY_SRC, PWM_Timers TIM, float Du
 	uint32_t Period_Value;
 	uint32_t Duty_Value;
 
+	if (Duty<=0) Duty=0;
+
 	switch (TIM){
 		case TIMER_A:
 			Period_Value = hhrtim1.Instance->sTimerxRegs[0].PERxR;
@@ -82,6 +84,7 @@ void PWM_DUTY_Processing (DMA_PWMDUTY_STRUCT *DUTY_SRC, PWM_Timers TIM, float Du
 		break;
 		case TIMER_E:
 			Period_Value = hhrtim1.Instance->sTimerxRegs[4].PERxR;
+			if (Duty>=1) Duty=0.95;
 			Duty_Value = (uint32_t) (Duty*Period_Value);
 			DUTY_SRC->chE1 = Duty_Value;
 		break;
