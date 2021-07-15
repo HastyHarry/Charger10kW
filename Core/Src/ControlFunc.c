@@ -283,7 +283,7 @@ void DATA_Processing(){
 
 		Raw_DMA.Ready1 = RESET;
 	}
-	else if (Raw_DMA.Ready2==SET){
+	if (Raw_DMA.Ready2==SET){
 		for (i=0;i<ADC2_MA_PERIOD_RAW;i++){
 			Value1 = Value1 + Raw_DMA.Vrect[i];
 			Value2 = Value2 + Raw_DMA.Idclink[i];
