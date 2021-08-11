@@ -87,6 +87,7 @@ volatile FlagStatus Calc_Start;
 FlagStatus DMA_FLAG;
 
 uint16_t service_sw;
+uint32_t service_adc_time_check;
 
 System_state Status;
 
@@ -246,8 +247,8 @@ int main(void)
 
 	}
 	if (DPC_TO_Check(TO_CHARGING_RELAYS)==TO_OUT_TOOK){
-		//HAL_GPIO_WritePin(RECT_SW_GPIO_Port, RECT_SW_Pin, GPIO_PIN_SET );
-		//HAL_GPIO_WritePin(LED_VD11_GPIO_Port, LED_VD11_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(RECT_SW_GPIO_Port, RECT_SW_Pin, GPIO_PIN_SET );
+		HAL_GPIO_WritePin(LED_VD11_GPIO_Port, LED_VD11_Pin, GPIO_PIN_SET);
 	}
 
 	if(Calc_Start==SET){
@@ -257,6 +258,7 @@ int main(void)
 		ADC2Phy_IDC_ProcessData(&ADC_Conf,(RAW_ADC_Struct*)Read_Volt_DC(), &ADC_IN_PHY);
 		ADC2Phy_Idclink_ProcessData(&ADC_Conf,(RAW_ADC_Struct*)Read_Volt_DC(), &ADC_IN_PHY);
 		ADC2Phy_Vdclink_ProcessData(&ADC_Conf,(RAW_ADC_Struct*)Read_Volt_DC(), &ADC_IN_PHY);
+		ADC2Phy_Vrect_ProcessData(&ADC_Conf,(RAW_ADC_Struct*)Read_Volt_DC(), &ADC_IN_PHY);
 
 		if (((float)ADC_IN_PHY.Vdclink) > BUCK_VDC_REF_LOW_REF){
 			StartUp=1;
@@ -270,6 +272,7 @@ int main(void)
 		if (StartUp==0){
 			UDC_LIMIT_PID.resetPI = SET;
 			IDC_LIMIT_PID.resetPI = SET;
+			//HAL_GPIO_WritePin(RECT_SW_GPIO_Port, RECT_SW_Pin, GPIO_PIN_SET );
 			PID_Result_V = PID(BUCK_VDC_REF, ADC_IN_PHY.Vdclink, &PID_CONF_StartUp);
 			PWM = PID_Result_V/BUCK_VAC_REF;
 			IDC_LIMIT_PID.resetPI = SET;
@@ -280,7 +283,8 @@ int main(void)
 			HAL_GPIO_WritePin(BUCK_SW_GPIO_Port, BUCK_SW_Pin, GPIO_PIN_SET );
 			HAL_GPIO_WritePin(LED_VD11_GPIO_Port, LED_VD11_Pin, GPIO_PIN_SET);
 			PID_Result_V = PID(BUCK_VDC_REF, ADC_IN_PHY.Vdclink, &UDC_LIMIT_PID);
-			PID_Result_I = PID(BUCK_IDC_LIM, ADC_IN_PHY.Idclink, &IDC_LIMIT_PID);
+			//PID_Result_I = PID(BUCK_IDC_LIM, ADC_IN_PHY.Idclink, &IDC_LIMIT_PID);
+
 
 			if (PID_Result_V<=PID_Result_I){
 				PWM = PID_Result_V/BUCK_VAC_REF;
@@ -288,15 +292,18 @@ int main(void)
 			else if (PID_Result_V>PID_Result_I){
 				PWM = PID_Result_I/BUCK_VAC_REF;
 			}
+
 			PID_CONF_StartUp.resetPI = SET;
 			PWM = PID_Result_V/BUCK_VAC_REF;
+
 		}
+		PWM = 0.5;
 		PWM_DUTY_Processing(&DMA_HRTIM_SRC, TIMER_E, PWM);
+		//HAL_HRTIM_WaveformOutputStop(&hhrtim1, HRTIM_OUTPUT_TE1);
 
 		if (ADC_IN_PHY.Vdc>=BUCK_VDC_OV){
 			HAL_HRTIM_WaveformOutputStop(&hhrtim1, HRTIM_OUTPUT_TE1);
-		}
-		else if (ADC_IN_PHY.Vdc <= BUCK_VDC_REF_LOW_REF){
+		}		else if (ADC_IN_PHY.Vdc <= BUCK_VDC_REF_LOW_REF){
 			HAL_HRTIM_WaveformOutputStart(&hhrtim1, HRTIM_OUTPUT_TE1);
 		}
 
@@ -382,8 +389,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	}
 	else if (htim->Instance == TIM2){
 		//20kHz
+		service_adc_time_check++;
 	}
-	if (htim->Instance == TIM3){
+	else if (htim->Instance == TIM3){
 		//1kHz
 		TimeoutMng();
 	}
@@ -411,11 +419,11 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 	if (hadc->Instance == ADC1){
 		DATA_Acquisition_from_DMA(p_ADC1_Data,1);
 		HAL_ADC_Start_DMA(&hadc1, p_ADC1_Data, ADC1_MA_PERIOD_RAW*ADC1_CHs);
-
 	}
 	else if (hadc->Instance == ADC2){
 		DATA_Acquisition_from_DMA(p_ADC2_Data,2);
 		HAL_ADC_Start_DMA(&hadc2, p_ADC2_Data, ADC2_MA_PERIOD_RAW*ADC2_CHs);
+		service_adc_time_check = 0;
 	}
 }
 

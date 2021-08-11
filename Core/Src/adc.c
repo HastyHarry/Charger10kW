@@ -131,7 +131,7 @@ void MX_ADC2_Init(void)
   hadc2.Init.ExternalTrigConvEdge = ADC_EXTERNALTRIGCONVEDGE_NONE;
   hadc2.Init.DMAContinuousRequests = ENABLE;
   hadc2.Init.Overrun = ADC_OVR_DATA_PRESERVED;
-  hadc2.Init.OversamplingMode = ENABLE;
+  hadc2.Init.OversamplingMode = DISABLE;
   hadc2.Init.Oversampling.Ratio = ADC_OVERSAMPLING_RATIO_16;
   hadc2.Init.Oversampling.RightBitShift = ADC_RIGHTBITSHIFT_4;
   hadc2.Init.Oversampling.TriggeredMode = ADC_TRIGGEREDMODE_SINGLE_TRIGGER;

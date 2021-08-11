@@ -28,9 +28,9 @@
 #define ADC1_MA_PERIOD_IDC				5
 #define ADC1_MA_PERIOD_RAW				1
 #define ADC2_CHs						3
-#define ADC2_MA_PERIOD_VDCLINK			5
+#define ADC2_MA_PERIOD_VDCLINK			20
 #define ADC2_MA_PERIOD_IDCLINK			5
-#define ADC2_MA_PERIOD_VDCRECT			5
+#define ADC2_MA_PERIOD_VDCRECT			20
 #define ADC2_MA_PERIOD_RAW				1
 #define BUCK_ADC1 						hadc1
 #define ADC_VAL_CHANGE_SPD_K			0.5
@@ -38,7 +38,7 @@
 //Rectifier defaults
 #define BUCK_IDC_LIM					25
 #define BUCK_VAC_REF					400
-#define BUCK_VDC_REF					100
+#define BUCK_VDC_REF					50
 #define BUCK_VDC_OV						430
 #define BUCK_VDC_HIST					10												/*!< value in %*/
 #define BUCK_VDC_REF_LOW_REF			BUCK_VDC_REF-(BUCK_VDC_REF*BUCK_VDC_HIST/100)
@@ -92,12 +92,12 @@
 #define G_IDC                           1                                          /*!< Gain terms of the DC current sensing */
 #define B_IDC                           1                                           /*!< Bias terms of the DC current sensing */
 
-#define G_VDCLINK                       0.5                                          /*!< Gain terms of the DC current sensing */
-#define B_VDCLINK                       1900                                          /*!< Bias terms of the DC current sensing */
-#define G_IDCLINK                       0.007                                          /*!< Gain terms of the DC current sensing */
-#define B_IDCLINK                       490                                          /*!< Bias terms of the DC current sensing */
-#define G_VRECT                         1                                          /*!< Gain terms of the DC current sensing */
-#define B_VRECT                         1                                          /*!< Bias terms of the DC current sensing */
+#define G_VDCLINK                       0.15                                         /*!< Gain terms of the DC current sensing */
+#define B_VDCLINK                       0                                          /*!< Bias terms of the DC current sensing */
+#define G_IDCLINK                       1.0                                          /*!< Gain terms of the DC current sensing */
+#define B_IDCLINK                       0                                          /*!< Bias terms of the DC current sensing */
+#define G_VRECT                         1.0                                          /*!< Gain terms of the DC current sensing */
+#define B_VRECT                         0                                          /*!< Bias terms of the DC current sensing */
 
 //UART Settings
 #define UART_PACKAGE_SIZE				27
