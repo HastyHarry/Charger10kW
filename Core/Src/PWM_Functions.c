@@ -90,3 +90,29 @@ void PWM_DUTY_Processing (DMA_PWMDUTY_STRUCT *DUTY_SRC, PWM_Timers TIM, float Du
 		break;
 	}
 }
+
+//void ADC_Trigger_Init(uint32_t Pulse_Val){
+//
+//
+//	  HRTIM_SimpleOCChannelCfgTypeDef pSimpleOCChannelCfg;
+//
+//	  pSimpleOCChannelCfg.IdleLevel
+//	  pSimpleOCChannelCfg.Mode
+//
+//	  pSimpleOCChannelCfg.Polarity =
+//	  pSimpleOCChannelCfg.Pulse = Pulse_Val;
+//
+//
+//	  sConfigOC.OCMode = TIM_OCMODE_ACTIVE;
+//	  sConfigOC.Pulse = Pulse_Val;
+//	  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+//	  sConfigOC.OCNPolarity = TIM_OCNPOLARITY_HIGH;
+//	  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+//	  sConfigOC.OCIdleState = TIM_OCIDLESTATE_RESET;
+//	  sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+//	  HAL_TIM_OC_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1);
+//
+//	  HAL_HRTIM_SimpleOCChannelConfig(&hhrtim1,HRTIM_TIMERINDEX_TIMER_E,OCChannel, pSimpleOCChannelCfg)
+//
+//}
+

@@ -169,6 +169,11 @@ int main(void)
 
   HRTIM_PWM_Init(&DMA_HRTIM_SRC);
 
+  HAL_HRTIM_SimpleBaseStart(&hhrtim1, HRTIM_TIMERINDEX_MASTER);
+  HAL_HRTIM_WaveformCountStart_IT(&hhrtim1, HRTIM_TIMERINDEX_MASTER);
+  HAL_HRTIM_UpdateEnable(&hhrtim1,HRTIM_TIMERINDEX_MASTER);
+
+
   HAL_HRTIM_SimpleBaseStart(&hhrtim1, HRTIM_TIMERINDEX_TIMER_A);
   //HAL_HRTIM_SimpleBaseStart_DMA(&hhrtim1, HRTIM_TIMERINDEX_TIMER_A, (uint32_t) &DMA_HRTIM_SRC.chA1, (uint32_t) &(hhrtim1.Instance->sTimerxRegs[0].CMP1xR), 1);
   HAL_HRTIM_WaveformCountStart_IT(&hhrtim1, HRTIM_TIMERINDEX_TIMER_A);
@@ -196,7 +201,8 @@ int main(void)
   HAL_HRTIM_WaveformOutputStart(&hhrtim1, HRTIM_OUTPUT_TE1);
 
   //HAL_ADC_Start_DMA(&hadc1, p_ADC1_Data, ADC1_MA_PERIOD_RAW*ADC1_CHs);
-  HAL_ADC_Start_DMA(&hadc2, p_ADC2_Data, ADC2_MA_PERIOD_RAW*ADC2_CHs);
+
+  HAL_ADC_Start_DMA(&hadc2, p_ADC2_Data, ADC2_MA_PERIOD_RAW*ADC2_CHs); //110821
 
   //HAL_UART_Transmit_DMA(&huart1, &DMA_UART_SRC.Transmit, UART_MSG.MsgLength);
   UART_Start_Receive_IT(&huart1, &DMA_UART_SRC.Received[0], UART_PACKAGE_SIZE);
@@ -252,6 +258,7 @@ int main(void)
 	}
 
 	if(Calc_Start==SET){
+
 		DATA_Processing();
 		ADC_MA_VAL_Collection();
 		ADC2Phy_VDC_ProcessData(&ADC_Conf,(RAW_ADC_Struct*)Read_Volt_DC(), &ADC_IN_PHY);
@@ -299,6 +306,8 @@ int main(void)
 		}
 		PWM = 0.5;
 		PWM_DUTY_Processing(&DMA_HRTIM_SRC, TIMER_E, PWM);
+
+		Compare4_Set(10000);
 		//HAL_HRTIM_WaveformOutputStop(&hhrtim1, HRTIM_OUTPUT_TE1);
 
 		if (ADC_IN_PHY.Vdc>=BUCK_VDC_OV){
@@ -388,8 +397,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 		Calc_Start = SET;
 	}
 	else if (htim->Instance == TIM2){
-		//20kHz
-		service_adc_time_check++;
+		//100kHz
+		//service_adc_time_check++;
 	}
 	else if (htim->Instance == TIM3){
 		//1kHz
@@ -398,6 +407,51 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 	else if (htim ->Instance == TIM4){
 		//1kHz
 
+	}
+}
+
+void HAL_HRTIM_Compare4EventCallback(HRTIM_HandleTypeDef * hhrtim, uint32_t TimerIdx){
+
+	if (hhrtim->Instance == HRTIM1){
+		if (TimerIdx == HRTIM_TIMERINDEX_TIMER_E){
+			//HAL_GPIO_TogglePin(RECT_SW_GPIO_Port, RECT_SW_Pin);
+		}
+	}
+}
+
+void HAL_HRTIM_Compare3EventCallback(HRTIM_HandleTypeDef * hhrtim, uint32_t TimerIdx){
+	if (hhrtim->Instance == HRTIM1){
+		if (TimerIdx == HRTIM_TIMERINDEX_TIMER_E){
+			//HAL_GPIO_TogglePin(RECT_SW_GPIO_Port, RECT_SW_Pin);
+		}
+	}
+}
+
+void HAL_HRTIM_Output1SetCallback(HRTIM_HandleTypeDef *hhrtim,
+                                         uint32_t TimerIdx){
+	if (hhrtim->Instance == HRTIM1){
+		if (TimerIdx == HRTIM_TIMERINDEX_TIMER_E){
+			//HAL_GPIO_TogglePin(RECT_SW_GPIO_Port, RECT_SW_Pin);
+		}
+	}
+}
+
+
+void HAL_HRTIM_RepetitionEventCallback(HRTIM_HandleTypeDef *hhrtim,
+                                              uint32_t TimerIdx){
+	if (hhrtim->Instance == HRTIM1){
+		if (TimerIdx == HRTIM_TIMERINDEX_TIMER_E){
+			//HAL_GPIO_TogglePin(LED_VD11_GPIO_Port, LED_VD11_Pin);
+		}
+	}
+}
+
+void HAL_HRTIM_CounterResetCallback(HRTIM_HandleTypeDef *hhrtim,
+                                           uint32_t TimerIdx){
+	if (hhrtim->Instance == HRTIM1){
+		if (TimerIdx == HRTIM_TIMERINDEX_TIMER_E){
+			//HAL_GPIO_TogglePin(LED_VD11_GPIO_Port, LED_VD11_Pin);
+		}
 	}
 }
 
@@ -422,8 +476,8 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc){
 	}
 	else if (hadc->Instance == ADC2){
 		DATA_Acquisition_from_DMA(p_ADC2_Data,2);
-		HAL_ADC_Start_DMA(&hadc2, p_ADC2_Data, ADC2_MA_PERIOD_RAW*ADC2_CHs);
 		service_adc_time_check = 0;
+		HAL_GPIO_TogglePin(LED_VD11_GPIO_Port, LED_VD11_Pin);
 	}
 }
 

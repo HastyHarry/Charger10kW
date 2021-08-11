@@ -42,7 +42,7 @@ void MX_HRTIM1_Init(void);
 void HAL_HRTIM_MspPostInit(HRTIM_HandleTypeDef *hhrtim);
 
 /* USER CODE BEGIN Prototypes */
-
+void Compare4_Set(uint32_t Value);
 /* USER CODE END Prototypes */
 
 #ifdef __cplusplus
